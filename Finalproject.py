@@ -5,7 +5,7 @@ df = pd.read_csv(r'data\SeedUnofficialAppleDataCSV.csv', encoding='latin1', skip
 
 # Rename columns
 df.columns = ['model', 'release_os', 'release_date', 'discontinued', 'support_ended',
-              'final_os', 'lifespan', 'max_lifespan', 'launch_price']
+            'final_os', 'lifespan', 'max_lifespan', 'launch_price']
 
 # Remove any rows where 'model' is NaN
 df = df[df['model'].notna()]
