@@ -30,6 +30,8 @@ than have a future date from an input
 
 #this is where we will be having the imports
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 '''file infomation
@@ -44,18 +46,23 @@ file = pd.read_csv(r'data/SeedUnofficialAppleDataCSV.csv')#1
 file.columns = ['model', 'release_os', 'release_date', 'discontinued', 'support_ended','final_os', 'lifespan', 'max_lifespan', 'launch_price']#2
 
 
+
+
 #This function get you a whole list of all the iphones> it returns as "iphone ????"  ???==Number/model
 #this could just be used for lables and other stuff.
+
 def getPhoneList():
     #this is droping the null values
-    file.dropna(subset='model', inplace=True)
+    tfile = file.dropna(subset='model', inplace=False, axis='index')
     #this is just lists for random
     phoneList = []
     phoneList2 = []
 
+    #print(tfile)
+
     #this is removing the "/" in the iphones like iphone 6 / 6s 
     #when this is returning the ./ list it comes ["iphone 6","6s "]
-    for i in file['model']:    
+    for i in tfile['model']:    
         phoneList.append(i.split("/"))
 
     for i in range(1, len(phoneList)):
@@ -73,30 +80,176 @@ def getPhoneList():
     return phoneList2
 
 
-getPhoneList()
-
-
+print('There are',len(getPhoneList()),'Iphones\n\n')
 
 
 #this section is a work in progross, if you want to take ove and try anything please do
-priceList = []
-priceList2 = []
-priceList3 = []
+
+
+def getPriceList():
+    #['launch_price'].dropna(inplace=False, axis='index')
+
+    #print('\n\t--In the price function---\n')
+    tempFile = file
+    result_list = []
+    realFinal = []
+
+    #this is adding all the values and stuff together
+    #what its doing it looking at the model row, if the value is null than it would add the lanch price to a list of the item before
+    #if its not null than it would add the value to the list
+    for i, r in tempFile.iterrows():
+        if pd.isnull(r['model']):
+            # Add the launch_price to the last non-null model's list
+            result_list[-1][1].append(r['launch_price'])
+        else:
+            # Create a new entry for the non-null model
+            result_list.append([r['model'], [r['launch_price']]])
+
+
+
+
+
+    #this is for a lot ngl, its first looping through each row
+    for i in range(1,len(result_list)):
+        #this is for the first row, if there is a "/" it will spice it, if not it will just add it to its own list
+        #if it does find a "/" it replace it with a space
+        result_list[i][0] = result_list[i][0].split("/")
+
+        #this is than looking if the item in the firs list has a " " than it puts iphone.
+        for l in range(0, len(result_list[i][0])):
+            if result_list[i][0][l].startswith(" "):
+                #print(result_list[i][0][l])
+                result_list[i][0][l] = "iphone" + result_list[i][0][l]
+                # print(result_list[i][0][l])
+        #this is looking at the price list, its each item in the price list
+        #if it has a "*" than it removes it, if it has a "$" it removes it
+        for l in range(0,len(result_list[i][1])):
+            # print(result_list[i][1][l].replace('$', ''))
+            result_list[i][1][l] = result_list[i][1][l].replace('*', '')
+            result_list[i][1][l] = result_list[i][1][l].replace('$', '')
+            result_list[i][1][l] = result_list[i][1][l].replace('Plus:', '')
+            result_list[i][1][l] = result_list[i][1][l].replace('Max:', '')
+            result_list[i][1][l] = result_list[i][1][l].replace('Mini:', '')
+
+    for i in range(1,len(result_list)):
+        if len(result_list[i][0]) == 1:#if the first list only has one item than it will do this
+            #print(f"---only one[1][]: {result_list[i]}--")
+            if len(result_list[i][1]) > 1:
+                #print(f"more than 1[1][2]: {result_list[i][1]}")
+                #realFinal.append([result_list[i][0][0],[result_list[i][1][0], result_list[i][1][1]]])
+                realFinal.append([result_list[i][0][0],result_list[i][1][0], result_list[i][1][1]])
+                #print([result_list[i][0][0],[result_list[i][1][0], result_list[i][1][1]]])
+            else:
+                #print(f"less than 1[1][1]: {result_list[i][1]}")
+                realFinal.append([result_list[i][0][0],result_list[i][1][0]])
+                #print([result_list[i][0][0],[result_list[i][1][0]]])
+            #print('\n')
+        else:
+            #print(f"---more than one[2][]: {result_list[i]}")
+            if len(result_list[i][1]) > 2:
+                #print(f"more than two[2][4]: {result_list[i][l]}")
+                for l in range(0, len(result_list[i][0])):
+                    #print(f"loop {l}")
+                    if l == 0:
+                        realFinal.append([result_list[i][0][l],result_list[i][1][0],result_list[i][1][1]])
+                        #print([result_list[i][0][l],[result_list[i][1][0],result_list[i][1][1]]])
+                    else:
+                        realFinal.append([result_list[i][0][l],result_list[i][1][2],result_list[i][1][3]])
+                        #print([result_list[i][0][l],[result_list[i][1][2],result_list[i][1][3]]])
+                #print('\n')
+            else:
+                for l in range(0, len(result_list[i][0])):
+                    #print(f"loop {l}")
+                    if l == 0:
+                        realFinal.append([result_list[i][0][l],result_list[i][1][0]])
+                        #print([result_list[i][0][l],[result_list[i][1][0]]])
+                    else:
+                        realFinal.append([result_list[i][0][l],result_list[i][1][1]])
+                        #print([result_list[i][0][l],[result_list[i][1][1]]])
+
+    #this is converting the whole thing i just made into a data frame
+    df = pd.DataFrame(realFinal, columns=['iphone', 'price', 'plane'])
+
+    df['price'] = df['price'].str.split("/")
+    df['plane'] = df['plane'].str.split("/")
+
+    return df
+        
+
+priceDf = getPriceList()
+
+# lol = [for i in priceDf['price'][0]]
+
+y = [int(x[0]) for x in priceDf['price']]
+y1 = [int(x[1]) for x in priceDf['price']]
+
+x = [x for x in priceDf['iphone']]
+
+print(x)
+
+
+
+# print(for i in priceDf['price'][0])
+
+# Generate some data
+
+# y = np.sin(x)
+
+# # Create a figure and axes
+fig, ax = plt.subplots()
+
+# # Plot the data
+ax.plot(x, y)
+ax.plot(x, y1)
+
+
+
+# # Add a title and labels
+ax.set_title("Sine Wave")
+ax.set_xlabel("x")
+plt.xticks(rotation=90)
+ax.set_ylabel("y")
+
+# # Show the plot
+plt.show()
+
+
+
+
+
+
+
+# priceDf = getPriceList()
+
+# print(len(priceDf))
 
 
 #this is removing the $
-for i in file['launch_price']:
-    priceList.append(i.replace('$', ''))
-    # priceList.append(i.split("/"))
-#this is removing the *
-for i in priceList:
-    priceList2.append(i.replace('*', ''))
-#this is removing the / 
-for i in priceList2:
-    priceList3.append(i.split("/"))
+# for i in file['launch_price']:
+#     print(i)
 
 
-print(priceList3)
+
+
+
+
+#     # priceList.append(i.split("/"))
+# #this is removing the *
+# for i in lstpriceList:
+#     priceList2.append(i.replace('*', ''))
+# #this is removing the / 
+# for i in priceList2:
+#     priceList3.append(i.split("/"))
+
+# lstpriceList = priceList3
+# lstpriceList.pop(0)
+# print(lstpriceList)
+
+
+
+
+
+
 
 # for i in priceList:
 
