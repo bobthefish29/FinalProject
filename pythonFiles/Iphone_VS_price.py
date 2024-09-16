@@ -85,7 +85,12 @@ print('There are',len(getPhoneList()),'Iphones\n\n')
 
 #this section is a work in progross, if you want to take ove and try anything please do
 
-
+#this is taking in the infomration from the file, than it will return a whole list of the phone and the prices for that list
+#Phone          FirstPrice   Carrier price
+#Iphone      [325,329]          894
+# iphone 3  [235,232]           null
+#
+#
 def getPriceList():
     #['launch_price'].dropna(inplace=False, axis='index')
 
@@ -178,41 +183,137 @@ def getPriceList():
 
 priceDf = getPriceList()
 
-# lol = [for i in priceDf['price'][0]]
-
-y = [int(x[0]) for x in priceDf['price']]
-y1 = [int(x[1]) for x in priceDf['price']]
-
-x = [x for x in priceDf['iphone']]
-
-print(x)
+print(priceDf)
 
 
-
-# print(for i in priceDf['price'][0])
-
-# Generate some data
-
-# y = np.sin(x)
+'''
+#this is the first graph i was working on, its super basic and i was just having fun
+y = [int(x[0]) for x in priceDf['price']] #this is the first price list SO:[122,233]  ITs the 122
+y1 = [int(x[1]) for x in priceDf['price']] #this is the next price list SO:[122,233]  ITs the 233
+x = [x for x in priceDf['iphone']] # this is the iphones, thats why its the lables
 
 # # Create a figure and axes
 fig, ax = plt.subplots()
 
 # # Plot the data
-ax.plot(x, y)
-ax.plot(x, y1)
-
-
+ax.plot(x, y)#this is doing iphone on x an dthe valeus on the y
+ax.plot(x, y1)#this is doing the iphone on x an the valeus on y
 
 # # Add a title and labels
 ax.set_title("Sine Wave")
 ax.set_xlabel("x")
 plt.xticks(rotation=90)
 ax.set_ylabel("y")
+plt.show()
+'''
 
-# # Show the plot
+##this is how we can make a bestFitLine
+#y = (m*x) + b
+#m = slopt
+#x = its the line
+#b = its the line itself
+
+
+'''
+
+from statistics import mean
+import numpy as np
+
+# int(x[1]) for x in priceDf['price']
+
+y = [int(x[0]) for x in priceDf['price']] #this is the first price list SO:[122,233]  ITs the 122
+x = [int(x[0]) for x in priceDf['price']] #this is the next price list SO:[122,233]  ITs the 233
+iphone = [x for x in priceDf['iphone']] # this is the iphones, thats why its the lables
+
+
+
+# xs = np.array(iphone, dtype=np.strings)
+#xs = np.array(int(x[0]) for x in priceDf['price'])
+# ys = np.array(int(x[1]) for x in priceDf['price'])
+xs = np.array(x, dtype=np.float64)
+ys = np.array(y, dtype=np.float64)
+
+def best_fit_slope_and_intercept(xs,ys):
+    m = (((mean(xs)*mean(ys)) - mean(xs*ys)) / ((mean(xs)*mean(xs)) - mean(xs*xs)))
+    
+    b = mean(ys) - m*mean(xs)
+    
+    return m, b
+
+m, b = best_fit_slope_and_intercept(xs,ys)
+
+# print(m,b)
+
+regression_line = [(m*x)+b for x in xs]
+from matplotlib import style
+style.use('ggplot')
+plt.scatter(iphone,ys,color='#003F72',label='price')
+plt.plot(iphone,regression_line,label='regression line')
+# plt.plot(iphone,ys,label='regression line')
+# plt.plot(xs,ys,label='regression line')
+# plt.tick_params(tick1On=xs.all(),tick2On=ys.all())
+plt.xticks(iphone,rotation=90)
+plt.legend(loc=4)
 plt.show()
 
+
+
+predict_x = 7
+predict_y = (m*predict_x)+b
+
+'''
+
+from statistics import mean
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import style
+
+# Extracting data
+y = [int(x[0]) for x in priceDf['price']]  # First price list
+x = [int(x[0]) for x in priceDf['price']]  # Next price list
+iphone = [x for x in priceDf['iphone']]    # iPhone labels
+
+# Converting to numpy arrays
+xs = np.array(x, dtype=np.float64)
+ys = np.array(y, dtype=np.float64)
+
+# Function to calculate slope and intercept
+def best_fit_slope_and_intercept(xs, ys):
+    m = (((mean(xs) * mean(ys)) - mean(xs * ys)) / 
+         ((mean(xs) * mean(xs)) - mean(xs * xs)))
+    b = mean(ys) - m * mean(xs)
+    return m, b
+
+# Calculate slope and intercept
+m, b = best_fit_slope_and_intercept(xs, ys)
+
+
+# Generate regression line
+regression_line = [(m * x) + b for x in xs]
+
+# Plotting
+style.use('ggplot')
+plt.plot(iphone, regression_line, label='iphone', color='red')
+# plt.scatter(xs, ys, color='#003F72', label='price')
+# plt.plot(iphone, ys, label='regression line', color='green')
+plt.xticks(iphone, rotation=90)
+plt.legend(loc=4)
+plt.show()
+
+
+
+
+
+
+
+
+# predict_x = 7
+# predict_y = (m*predict_x)+b
+
+# plt.scatter(xs,ys,color='#003F72',label='data')
+# plt.plot(xs, regression_line, label='regression line')
+# plt.legend(loc=4)
+# plt.show()
 
 
 
