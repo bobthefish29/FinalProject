@@ -42,10 +42,10 @@ import numpy as np
 
 '''
 
-file = pd.read_csv(r'data/SeedUnofficialAppleDataCSV.csv')#1
+file = pd.read_csv(r'data/SeedUnofficialAppleDataCSV.csv',encoding="UTF-8")#1
 file.columns = ['model', 'release_os', 'release_date', 'discontinued', 'support_ended','final_os', 'lifespan', 'max_lifespan', 'launch_price']#2
 
-
+#so the next thing i need to look into is getting the dates
 
 
 #This function get you a whole list of all the iphones> it returns as "iphone ????"  ???==Number/model
@@ -79,6 +79,18 @@ def getPhoneList():
             phoneList2[i] = "iphone" + phoneList2[i]
     return phoneList2
 
+#this is where i am playing around with dates
+def getRLDateList():
+    tfile = file.dropna(subset='release_date', inplace=False, axis='index')
+
+    date_string = tfile['release_date']
+    date_object = pd.to_datetime(date_string, format="%B %d, %Y")
+
+    print(date_object)
+
+    print(tfile['release_date'])
+
+getRLDateList()
 
 # print('There are',len(getPhoneList()),'Iphones\n\n')
 
@@ -89,8 +101,6 @@ def getPhoneList():
 #Phone          FirstPrice   Carrier price
 #Iphone      [325,329]          894
 # iphone 3  [235,232]           null
-#
-#
 def getPriceList():
     #['launch_price'].dropna(inplace=False, axis='index')
 
@@ -179,8 +189,10 @@ def getPriceList():
     df['plane'] = df['plane'].str.split("/")
 
     return df
-        
 
+    
+
+#this is where we will be adding the date to the dataFrame,
 priceDf = getPriceList()
 
 # print(priceDf)
@@ -346,17 +358,34 @@ def makeTableWithYear(xlist,ylist, year):
     xs = np.array(xlist, dtype=np.float64)
     ys = np.array(ylist, dtype=np.float64)
 
-    i = 0
-    #FV=PV(1+i)n
-    xs = pd.DataFrame(xs)
-    ys = pd.DataFrame(ys)
-    next_value = (xs.iloc[-1] + ys.iloc[-1])/2
-    print(xs)
-    print(next_value)
-    # while i < year:
-    #     print(i)
-    #     i = i + 1
+    #this is getting the future value, 
+    # i = 0
+    # #FV=PV(1+i)n
+    #future value = present value x (1 + interest rate)n.
+    #Interest Rate = (Simple Interest × 100)/(Principal × Time).
 
+    #it will looks something like
+    #plotValue = (Present value * (1 + intrest rate)) * year
+    #
+    fv = pd.DataFrame(xs)
+    ys = pd.DataFrame(ys)
+
+    print(fv)
+    
+
+    #(final - init)
+    #---------------        * 100  == intrest Rate
+    #init*Time
+
+
+    intrest = (((fv.iloc[len(xs)-1]   -  fv.iloc[len(xs)-2])   /    (fv.iloc[len(xs)-1]*year)) * 100)
+    print(intrest)
+
+    next_value = (fv.iloc[len(xs)-1] * (1 + intrest)   )*year
+    print(fv.iloc[len(xs)-1])
+    print(next_value)
+
+    '''
 
     # Function to calculate slope and intercept
     # def best_fit_slope_and_intercept(xs, ys):
@@ -375,9 +404,9 @@ def makeTableWithYear(xlist,ylist, year):
     style.use('ggplot')
 
     #so this is the x values, its the lengh of the ipones[0,1,2,3,4,5,6,7,8,9]
-    x_values = np.arange(len(iphone) + year)
+    x_values = np.arange(len(iphone))
+    #x_values = np.arange(len(iphone) + year)#this is for each iphone plus the number of years you want
 
-    print(x_values)
     # Calculate the line of best fit, so the way polyfit is working is that it take in two list numbers
     #it than does some math on the numbers inputed and get out just 2 values, the first value is the slope
     #the secoend vlaue is the intersept
@@ -385,7 +414,7 @@ def makeTableWithYear(xlist,ylist, year):
 
     #this is a list of all the values, its basicly doing the slope value * each item in the lsit + the intersept value
 
-
+    #this is just a list of all the points 
     best_fit_line = slope * x_values + intercept
 
     # print(best_fit_line)
@@ -409,20 +438,21 @@ def makeTableWithYear(xlist,ylist, year):
     # Show the plot
     plt.tight_layout()
     plt.show()
+    '''
     #Ending of the function
 
 
 
 
-
+#this is a working version of the table
 # y = [int(x[0]) for x in priceDf['price']]  # First price list
 # x = [int(x[0]) for x in priceDf['price']]  # first price list
 # makeBasicTable(x,y)
 
 
-y = [int(x[0]) for x in priceDf['price']]  # First price list
-x = [int(x[0]) for x in priceDf['price']]  # first price list
-makeTableWithYear(x,y,9)
+# y = [int(x[0]) for x in priceDf['price']]  # First price list
+# x = [int(x[0]) for x in priceDf['price']]  # first price list
+# makeTableWithYear(x,y,1)
 
 
 
