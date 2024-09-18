@@ -350,6 +350,7 @@ def getPriceListWithYear():
     df['year'] = df['year'].replace('', '')
     df['year'] = pd.to_datetime(df['year'], format="%B %d, %Y", errors='coerce')
 
+
     df['price'] = df['price'].str.split("/")
     df['plane'] = df['plane'].str.split("/")
 
@@ -359,12 +360,17 @@ def getPriceListWithYear():
 
 #this is where we will be adding the date to the dataFrame,
 priceDf = getPriceListWithYear()
-otherDf = getPriceList()
 
-print('\n')
-print(priceDf)
-print('\n')
-print(otherDf)
+
+
+# otherDf = getPriceList()
+
+# print('\n')
+# print(priceDf)
+
+# print('\n')
+# print(otherDf)
+
 
 
 
@@ -518,13 +524,279 @@ def makeBasicTable(xlist,ylist):
     plt.show()
     #Ending of the function
 
-def makeTableWithYear(xlist,ylist, year):
+
+
+
+def makeTableWithYear():
     #just a basic making of a iphone list
-    iphone = [x for x in priceDf['iphone']]# iPhone labels
+
+    print('\n\n\ninFunction\n\n\n')
+    ipl = [x for x in priceDf['iphone']]# iPhone labels
+    yr = [y for y in priceDf['year']]
+    dy = [d for d in priceDf['year']]
+    pc = [int(x[0]) for x in priceDf['price']] 
+
+
+
 
     #this is taking the values that were being inputed and turing them into lists
-    xs = np.array(xlist, dtype=np.float64)
-    ys = np.array(ylist, dtype=np.float64)
+
+    #this is getting the value for the year
+    for i in range(0, len(yr)):
+        yr[i] = yr[i].year
+        dy[i] = dy[i].day
+
+    #this is needed to get the numbers or to turn it into numbers
+    pc = np.array(pc, dtype=np.float64)
+
+    print(pc)
+    print(yr)
+    print(ipl)
+
+    difIphone = []
+    difPrice = []
+    difYear = []
+
+    # for i in range(0,len(yr)):
+    #     if((yr[i], dy[i]) != (yr[i -1], dy[i - 1])):
+    #         if(ipl[i]!='iphone 12 Mini' or ipl[i]!='iPhone 12 Pro' or ipl[i]!='iphone 12 Pro Max' ):
+    #             difIphone.append(ipl[i])
+    #             difPrice.append(pc[i])
+    #             difYear.append(yr[i])
+
+    #just making the lists from the data
+    for i in range(0,len(yr)):
+        if((yr[i], dy[i]) == (yr[i -1], dy[i - 1])):
+            print('--------Same----------')
+            # print(dy[i])
+            # print(yr[i])
+            # print(ipl[i])
+            # print('\n')
+        else:
+            if(ipl[i]=='iphone 12 Mini' or ipl[i]=='iPhone 12 Pro ' or ipl[i]=='iphone 12 Pro Max' ):
+                print('--------Same----------')
+                # print(dy[i])
+                # print(yr[i])
+                # print(ipl[i])
+                # print('\n')
+            else:
+
+                difIphone.append(ipl[i])
+                difPrice.append(pc[i])
+                difYear.append(yr[i])
+                # print(dy[i])
+                # print(yr[i])
+                # print(ipl[i])
+                # print('\n')
+
+
+
+
+    intrest = (difPrice[len(difPrice)-3] - difPrice[len(difPrice)-1]) / difPrice[len(difPrice)-1]
+
+    # Initialize future values list
+    futureValue = []
+
+    # Calculate future values
+    for i in range(1, 6):
+        futureValue.append((difPrice[len(difPrice)-1]) + intrest)
+
+    
+
+    # Append future values to difPrice
+    for value in futureValue:
+        difPrice.append(value)
+
+    # Extend difYear to include future years
+    future_years = [difYear[-1] + i for i in range(1, 6)]
+    difYear.extend(future_years)
+
+    style.use('ggplot')
+
+    # x-values for the existing and future data
+    howManyPhones = np.arange(len(difIphone) + 5)
+
+    # Calculate the line of best fit
+    slope, intercept = np.polyfit(howManyPhones, difPrice, 1)
+
+    # Calculate the best fit line
+    best_fit_line = slope * howManyPhones + intercept
+
+    # Create the plot
+    plt.figure(figsize=(10, 6))
+    plt.scatter(difYear, difPrice, marker='o', label='iPhone Prices')
+    plt.plot(difYear, best_fit_line, color='green', linestyle='--', label='Best Fit Line')
+
+    # Add labels and title
+    plt.xlabel('Year')
+    plt.ylabel('Price (USD)')
+    plt.title('iPhone Prices by Year')
+    plt.xticks(difYear, rotation=45)
+    plt.yticks(difPrice, rotation=45)
+    plt.legend()
+
+    # Annotate the points with iPhone prices
+    for i, iphone in enumerate(difIphone):
+        plt.annotate(f'{iphone}', (difYear[i], difPrice[i]), textcoords="offset points", xytext=(0,10), ha='center', rotation=45)
+
+    # Annotate the future points
+    for i, year in enumerate(future_years):
+        plt.annotate(f'Predicted', (year, futureValue[i]), textcoords="offset points", xytext=(0,10), ha='center', rotation=45)
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
+
+
+
+
+
+
+    '''
+
+
+    futureValue = []
+
+    #finding the intrest amount between iphone 11, and 12
+    intrest = (difPrice[len(difPrice)-1] - difPrice[len(difPrice)-3])/difPrice[len(difPrice)-1]
+
+
+    futureValue.append((difPrice[len(difPrice)-1] * (1 + intrest))* 1)
+    futureValue.append((difPrice[len(difPrice)-1] * (1 + intrest))* 2)
+    futureValue.append((difPrice[len(difPrice)-1] * (1 + intrest))* 3)
+    futureValue.append((difPrice[len(difPrice)-1] * (1 + intrest))* 4)
+    futureValue.append((difPrice[len(difPrice)-1] * (1 + intrest))* 5)
+
+    # print(futureValue)
+
+
+    for i in range(0, len(futureValue)):
+        difPrice.append(futureValue[i])
+    
+    style.use('ggplot')
+
+    #the reasion 5 is there is to show five more years
+    howManyPhones = np.arange(len(difIphone) + 5)
+
+
+    # Calculate the line of best fit, so the way polyfit is working is that it take in two list numbers
+    #it than does some math on the numbers inputed and get out just 2 values, the first value is the slope
+    #the secoend vlaue is the intersept
+    slope, intercept = np.polyfit(howManyPhones, difPrice, 1)
+
+    #this is a list of all the values, its basicly doing the slope value * each item in the lsit + the intersept value
+    best_fit_line = slope * howManyPhones + intercept
+
+    # print(best_fit_line)
+
+    # Create the plot
+    plt.figure(figsize=(10, 6))
+    #this is ploting the year by the price
+    plt.scatter(difYear, difPrice, marker='o', label='iPhone Prices')
+    #this 
+    plt.plot(difYear, best_fit_line, color='green', linestyle='--', label='Best Fit Line')
+
+    # Add labels and title
+    plt.xlabel('Year')
+    plt.ylabel('Price (USD)')
+    plt.title('iPhone Prices by year')
+    plt.xticks(difYear,rotation=45)
+    plt.legend()
+
+    #this is adding the iphone name to each point
+    for i, iphone in enumerate(difIphone):
+        plt.annotate(f'{iphone}', (difYear[i], difPrice[i]), textcoords="offset points", xytext=(0,10), ha='center', rotation=45)
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
+
+    '''
+
+    '''
+    #working
+    slope, intercept = np.polyfit(pc, pc, 1)
+
+    #this is a list of all the values, its basicly doing the slope value * each item in the lsit + the intersept value
+    best_fit_line = slope * pc + intercept
+
+    # print(best_fit_line)
+
+    # Create the plot
+    plt.figure(figsize=(10, 6))
+    plt.scatter(yr, pc, marker='o', label='iPhone Prices')
+    plt.plot(yr, best_fit_line, color='green', linestyle='--', label='Best Fit Line')
+
+    # Add labels and title
+    plt.xlabel('iPhone Models')
+    plt.ylabel('Price (USD)')
+    plt.title('iPhone Prices by Model')
+    plt.xticks(yr, rotation=90)
+    plt.legend()
+
+    #this is adding the numbers to each point
+    for i, price in enumerate(ipl):
+        plt.annotate(f'{price}', (yr[i], pc[i]), textcoords="offset points", xytext=(0,10), ha='center')
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
+
+    '''
+
+
+
+    # print(yr)
+    # print('\n')
+
+    # for i in range(0,len(yr)):
+    #     if(yr[i] == yr[i -1]):
+    #         print('--------Same----------')
+    #         print(yr[i])
+    #         print(iphone[i])
+            
+    #         print('\n')
+    #     else:
+    #         print(yr[i])
+    #         print(iphone[i])
+    #         print('\n')
+    #         newIphone.append(iphone[i])
+    #         newYear.append(yr[i])
+    #         newPrice.append(pc[i])
+
+    # print(yr[1])
+    # print('\n')
+    # print(iphone)
+    # print(len(newIphone))
+    # print(len(newYear))
+
+
+
+    # plt.plot(newYear,newPrice)
+
+    # plt.scatter(newYear, newPrice, color='red', label='Scatter Plot')
+
+
+    # plt.xticks(newYear, rotation=90)
+    # plt.yticks(newPrice)
+
+
+    # for i, iphone in enumerate(newIphone):
+    #     plt.annotate(f'{iphone}', (newYear[i], newPrice[i]), textcoords="offset points", xytext=(0,10), ha='center')
+
+
+
+    # # Add labels and title
+    # plt.xlabel('Year')
+    # plt.ylabel('Price')
+    # plt.title('Year vs Price')
+
+    # # Add a legend
+    # plt.legend()
+
+
+
+    # plt.show()
 
     #this is getting the future value, 
     # i = 0
@@ -534,26 +806,32 @@ def makeTableWithYear(xlist,ylist, year):
 
     #it will looks something like
     #plotValue = (Present value * (1 + intrest rate)) * year
-    #
-    fv = pd.DataFrame(xs)
-    ys = pd.DataFrame(ys)
 
-    print(fv)
-    
+
+    # style.use('ggplot')
+    # plt.figure(figsize=(10, 10))
+    # plt.plot(yr, pc, color='green', linestyle='--', label='Best Fit Line')
+
+
+    # plt.show()
+
 
     #(final - init)
     #---------------        * 100  == intrest Rate
     #init*Time
 
 
-    intrest = (((fv.iloc[len(xs)-1]   -  fv.iloc[len(xs)-2])   /    (fv.iloc[len(xs)-1]*year)) * 100)
-    print(intrest)
+    # intrest = (((fv.iloc[len(xs)-1]   -  fv.iloc[len(xs)-2])   /    (fv.iloc[len(xs)-1]*year)) * 100)
+    # print(intrest)
 
-    next_value = (fv.iloc[len(xs)-1] * (1 + intrest)   )*year
-    print(fv.iloc[len(xs)-1])
-    print(next_value)
+    # next_value = (fv.iloc[len(xs)-1] * (1 + intrest)   )*year
+    # print(fv.iloc[len(xs)-1])
+    # print(next_value)
 
-    '''
+
+
+
+    
 
     # Function to calculate slope and intercept
     # def best_fit_slope_and_intercept(xs, ys):
@@ -568,6 +846,7 @@ def makeTableWithYear(xlist,ylist, year):
     # m, b = best_fit_slope_and_intercept(xs, ys)
 
 
+    '''
     # Plotting
     style.use('ggplot')
 
@@ -612,18 +891,18 @@ def makeTableWithYear(xlist,ylist, year):
 
 
 
-#this is a working version of the table
+#this is a working version of the table This is the first Graph
 y = [int(x[0]) for x in priceDf['price']]  # First price list
 x = [int(x[0]) for x in priceDf['price']]  # first price list
 makeBasicTable(x,y)
 
 
 
+#this is what is running for the table
+makeTableWithYear()
 
 
-# y = [int(x[0]) for x in priceDf['price']]  # First price list
-# x = [int(x[0]) for x in priceDf['price']]  # first price list
-# makeTableWithYear(x,y,1)
+
 
 
 
