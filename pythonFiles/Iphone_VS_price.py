@@ -593,13 +593,16 @@ def makeTableWithYear():
 
 
     intrest = (difPrice[len(difPrice)-3] - difPrice[len(difPrice)-1]) / difPrice[len(difPrice)-1]
+    intrest = intrest * -1
 
     # Initialize future values list
     futureValue = []
 
     # Calculate future values
     for i in range(1, 6):
-        futureValue.append((difPrice[len(difPrice)-1]) + intrest)
+        futureValue.append((difPrice[len(difPrice)-1]) + (( difPrice[len(difPrice)-1] * i) * intrest))
+
+    print(futureValue)
 
     
 
